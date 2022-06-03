@@ -1,6 +1,8 @@
 package fr.utc.sr03.chat.model;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "sr03_users")
@@ -10,6 +12,8 @@ public class User {
     private long id;
 
     @Column(name = "firstname")
+    @Size(min = 2)
+    @NotEmpty(message = "firstname obligatoire")
     private String firstName;
 
     @Column(name = "lastname")

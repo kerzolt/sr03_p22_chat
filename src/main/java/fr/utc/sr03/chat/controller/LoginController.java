@@ -14,6 +14,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 
+/**
+ * URL de base du endpoint : http://localhost:8080/login
+ */
 @Controller
 @RequestMapping("login")
 public class LoginController {
@@ -24,5 +27,18 @@ public class LoginController {
     public String getLogin(Model model) {
         model.addAttribute("user", new User());
         return "login";
+    }
+
+    @PostMapping
+    public String postLogin(@ModelAttribute User user, Model model, WebRequest request) {
+        User loggedUser = userRepository.findByMailAndPassword(user.getMail(), user.getPassword());
+
+        if (loggedUser != null && loggedUser.isAdmin()){
+            return "redirect:/admin/users";
+        }
+        else{
+            model.addAttribute("msg", "login ou password incorrect");
+            return "login";
+        }
     }
 }
