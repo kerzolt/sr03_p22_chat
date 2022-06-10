@@ -1,0 +1,16 @@
+.login-container{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.login-container > form{
+  height: 200px;
+  width: 300px;
+  border: 1px solid #ccc;
+}
+
+.login-container > form > label, .login-container > form > input{
+  display: block;
+}

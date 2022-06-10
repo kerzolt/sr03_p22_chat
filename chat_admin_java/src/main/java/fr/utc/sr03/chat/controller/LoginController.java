@@ -3,12 +3,10 @@ package fr.utc.sr03.chat.controller;
 import fr.utc.sr03.chat.dao.UserRepository;
 import fr.utc.sr03.chat.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -40,5 +38,18 @@ public class LoginController {
             model.addAttribute("msg", "login ou password incorrect");
             return "login";
         }
+    }
+
+    @PostMapping(value = "react", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public User postLoginFromReact(@RequestBody User user) {
+        User loggedUser = new User();
+
+        // Check user + session
+        if (user != null && user.getMail() != null && !user.getMail().isEmpty() && user.getPassword() != null && !user.getPassword().isEmpty()){
+            loggedUser = userRepository.findByMailAndPassword(user.getMail(), user.getPassword());
+        }
+
+        return loggedUser;
     }
 }

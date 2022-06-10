@@ -2,14 +2,17 @@ package fr.utc.sr03.chat.websocket;
 
 import org.springframework.stereotype.Component;
 
-import javax.websocket.*;
+import java.util.Hashtable;
+import javax.websocket.OnClose;
+import javax.websocket.OnError;
+import javax.websocket.OnMessage;
+import javax.websocket.OnOpen;
+import javax.websocket.Session;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import javax.websocket.server.ServerEndpointConfig;
-import java.util.Hashtable;
 
-@ServerEndpoint(value="/chatserver/{pseudo}",
-        configurator=ChatServer.EndpointConfigurator.class)
+@ServerEndpoint(value="/chatserver/{channelId}", configurator=ChatServer.EndpointConfigurator.class)
 @Component
 public class ChatServer {
 
@@ -34,9 +37,9 @@ public class ChatServer {
      * Cette méthode est déclenchée à chaque connexion d'un utilisateur.
      */
     @OnOpen
-    public void open(Session session, @PathParam("pseudo") String pseudo ) {
-        sendMessage( "Admin >>> Connection established for " + pseudo );
-        session.getUserProperties().put( "pseudo", pseudo );
+    public void open(Session session, @PathParam("channelId") String channelId ) {
+        sendMessage( ">>> Connection established for channel " + channelId );
+        session.getUserProperties().put( "channelId", channelId );
         sessions.put( session.getId(), session );
     }
 
@@ -45,9 +48,9 @@ public class ChatServer {
      */
     @OnClose
     public void close(Session session) {
-        String pseudo = (String) session.getUserProperties().get( "pseudo" );
+        String channelId = (String) session.getUserProperties().get( "channelId" );
         sessions.remove( session.getId() );
-        sendMessage( "Admin >>> Connection closed for " + pseudo );
+        sendMessage(">>> Connection closed for " + channelId );
     }
 
     /**
@@ -63,8 +66,8 @@ public class ChatServer {
      */
     @OnMessage
     public void handleMessage(String message, Session session) {
-        String pseudo = (String) session.getUserProperties().get( "pseudo" );
-        String fullMessage = pseudo + " >>> " + message;
+        String channelId = (String) session.getUserProperties().get( "channelId" );
+        String fullMessage = " >>> " + message;
 
         sendMessage( fullMessage );
     }
@@ -80,9 +83,9 @@ public class ChatServer {
         // On envoie le message à tout le monde.
         for( Session session : sessions.values() ) {
             try {
-                session.getBasicRemote().sendText( fullMessage );
-            } catch( Exception exception ) {
-                System.out.println( "ERROR: cannot send message to " + session.getId() );
+                session.getBasicRemote().sendText(fullMessage);
+            } catch (Exception exception) {
+                System.out.println("ERROR: cannot send message to " + session.getId());
             }
         }
     }
